@@ -9,10 +9,12 @@ namespace E_CommerceWeb
         {
             var builder = WebApplication.CreateBuilder(args);
             
-            //Add services to connect with SqlServer
-            var connectionString = builder.Configuration.GetConnectionString("EComerceDb");
+            //Add services to connect with SqlServer           
             builder.Services.AddDbContext<EcommerceDbContext>(options =>
-                            options.UseSqlServer(connectionString));
+            {
+                var connectionString = builder.Configuration.GetConnectionString("EComerceDb");
+                options.UseSqlServer(connectionString);
+            });
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
