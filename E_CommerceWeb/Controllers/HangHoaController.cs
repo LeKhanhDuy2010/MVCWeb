@@ -33,7 +33,7 @@ namespace E_CommerceWeb.Controllers
         public IActionResult Search(string? query)
         {
             var hangHoas = _context.HangHoas.AsQueryable();
-            if(query != null)
+            if (query != null)
             {
                 hangHoas = hangHoas.Where(p => p.TenHh.Contains(query));
             }
@@ -47,6 +47,30 @@ namespace E_CommerceWeb.Controllers
                 TenLoai = p.MaLoaiNavigation.TenLoai,
             });
 
+            return View(result);
+        }
+
+        public IActionResult Detail(int id)
+        {
+            var data = _context.HangHoas.Include(p => p.MaLoaiNavigation)
+                                        .SingleOrDefault(p => p.MaHh == id);
+            if (data == null)
+            {
+                TempData["Message"] = $"Không thấy sản phẩm có mã {id}";
+                return Redirect("/404");
+            }
+            var result = new ChiTietHangHoaVM
+            {
+                MaHh = data.MaHh,
+                TenHh = data.TenHh,
+                Hinh = data.Hinh ?? "",
+                TenLoai = data.MaLoaiNavigation.TenLoai,
+                DonGia = data.DonGia ?? 0,
+                MoTaNgan = data.MoTaDonVi ?? "",
+                MoTaChiTiet = data.MoTa ?? "",
+                DanhGia = 5,
+                SoLuongTon = 100,
+            };
             return View(result);
         }
     }
