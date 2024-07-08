@@ -1,4 +1,6 @@
 using E_CommerceWeb.Data;
+using E_CommerceWeb.Helper;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 namespace E_CommerceWeb
@@ -8,7 +10,7 @@ namespace E_CommerceWeb
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            
+
             //Add services to connect with SqlServer           
             builder.Services.AddDbContext<EcommerceDbContext>(options =>
             {
@@ -28,6 +30,14 @@ namespace E_CommerceWeb
                 options.Cookie.IsEssential = true;
             });
 
+            builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+            {
+                options.LoginPath= "/KhachHang/DangNhap";
+                options.AccessDeniedPath = "/AcessDenied";
+            });
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -43,6 +53,7 @@ namespace E_CommerceWeb
 
             app.UseRouting();
             app.UseSession();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
