@@ -14,7 +14,7 @@ namespace E_CommerceWeb
             //Add services to connect with SqlServer           
             builder.Services.AddDbContext<EcommerceDbContext>(options =>
             {
-                var connectionString = builder.Configuration.GetConnectionString("EComerceDb");
+                var connectionString = builder.Configuration.GetConnectionString("ECommerceDb");
                 options.UseSqlServer(connectionString);
             });
 

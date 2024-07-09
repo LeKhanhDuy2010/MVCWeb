@@ -13,7 +13,7 @@ namespace E_CommerceWeb.ViewComponents
 
         public IViewComponentResult Invoke()
         {
-            var gioHang = HttpContext.Session.Get<List<GioHangVM>>(MySetttings.CartKey) ?? new List<GioHangVM>();
+            var gioHang = HttpContext.Session.Get<List<GioHangVM>>(MySettings.CartKey) ?? new List<GioHangVM>();
             return View("CartPanel",new GioHangPanel
             {
                 SoLuong = gioHang.Sum(p => p.SoLuong),
