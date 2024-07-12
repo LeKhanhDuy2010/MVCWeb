@@ -34,10 +34,16 @@ namespace E_CommerceWeb
 
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
             {
-                options.LoginPath= "/KhachHang/DangNhap";
+                options.LoginPath = "/KhachHang/DangNhap";
                 options.AccessDeniedPath = "/AcessDenied";
             });
-            
+
+            builder.Services.AddSingleton(x => new PaypalClient(
+                        builder.Configuration["PaypalOptions:AppId"],
+                         builder.Configuration["PaypalOptions:AppSecret"],
+                            builder.Configuration["PaypalOptions:Mode"]
+            ));
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

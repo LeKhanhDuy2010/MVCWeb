@@ -20,7 +20,8 @@ namespace E_CommerceWeb.Controllers
             _context = context;
             _mapper = mapper;
         }
-
+        
+     
         #region Đăng ký
         [HttpGet]
         public IActionResult DangKy()
@@ -118,11 +119,19 @@ namespace E_CommerceWeb.Controllers
 
         #endregion
         [Authorize]
-        
+
         public IActionResult Profile()
         {
 
-            return View();
+            // Lấy tên khách hàng từ claims
+            var hoTen = User.FindFirst(ClaimTypes.Name)?.Value;
+
+            // Truyền thông tin này đến view
+            var khachHang = new KhachHangVM
+            {
+                TenKh = hoTen
+            };
+            return View(khachHang);
         }
 
         [Authorize]

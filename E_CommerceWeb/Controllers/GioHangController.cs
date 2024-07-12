@@ -9,8 +9,13 @@ namespace E_CommerceWeb.Controllers
     public class GioHangController : Controller
     {
         private readonly EcommerceDbContext _context;
+        private readonly PaypalClient _paypalClient;
 
-        public GioHangController(EcommerceDbContext context) => _context = context;
+        public GioHangController(EcommerceDbContext context, PaypalClient paypalClient) 
+        {
+            _context = context;
+            _paypalClient = paypalClient;
+        }
 
         public List<GioHangVM> GioHang => HttpContext.Session.Get<List<GioHangVM>>(MySettings.CartKey) ?? new List<GioHangVM>() ;
         public IActionResult Index()
@@ -69,6 +74,7 @@ namespace E_CommerceWeb.Controllers
             {
                 return Redirect("/");
             }
+            ViewBag.PaypalClientdId = _paypalClient.ClientId;
             return View(GioHang);
         }
 
@@ -132,5 +138,58 @@ namespace E_CommerceWeb.Controllers
 
 			return View(GioHang);
 		}
-	}
+
+
+
+        #region Paypal payment
+        [Authorize]
+        public IActionResult PaymentSuccess()
+        {
+            return View("Success");
+        }
+
+        [Authorize]
+        [HttpPost("/GioHang/create-paypal-order")]
+        public async Task<IActionResult> CreatePaypalOrder(CancellationToken cancellationToken)
+        {
+            // Thông tin đơn hàng gửi qua Paypal
+            var tongTien = GioHang.Sum(p => p.ThanhTien).ToString();
+            var donViTienTe = "USD";
+            var maDonHangThamChieu = "DH" + DateTime.Now.Ticks.ToString();
+
+            try
+            {
+                var response = await _paypalClient.CreateOrder(tongTien, donViTienTe, maDonHangThamChieu);
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var error = new { ex.GetBaseException().Message };
+                return BadRequest(error);
+            }
+        }
+
+        [Authorize]
+        [HttpPost("/GioHang/capture-paypal-order")]
+        public async Task<IActionResult> CapturePaypalOrder(string orderID, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var response = await _paypalClient.CaptureOrder(orderID);
+
+                // Lưu database đơn hàng của mình
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var error = new { ex.GetBaseException().Message };
+                return BadRequest(error);
+            }
+        }
+
+        #endregion
+
+    }
 }
